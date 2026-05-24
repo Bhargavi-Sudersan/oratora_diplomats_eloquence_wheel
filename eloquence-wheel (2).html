@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eloquence Academy — Topic Wheel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:        #0b1426;
+  --navy2:       #0f1d35;
+  --navy3:       #162447;
+  --navy4:       #1c2e52;
+  --gold:        #c9952a;
+  --gold2:       #e8b84b;
+  --gold3:       #f5d98e;
+  --cream:       #faf7f0;
+  --text:        #faf7f0;
+  --text-muted:  #8fa0bc;
+  --accent:      #e05c3a;
+  --accent2:     #f0834f;
+  --green:       #2a9d6e;
+  --green2:      #3dbf89;
+  --border:      rgba(201,149,42,0.25);
+  --border2:     rgba(201,149,42,0.12);
+  --r:           14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--navy);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 20%,rgba(201,149,42,.09) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 60% at 85% 75%,rgba(224,92,58,.07) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(22,36,71,.9) 0%,transparent 60%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════════════════════
+   AGE GATE SCREEN
+══════════════════════════════════════════ */
+#age-gate{
+  position:fixed;inset:0;z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--navy);
+  padding:24px;
+}
+#age-gate.hidden{display:none;}
+
+.gate-card{
+  position:relative;z-index:1;
+  background:linear-gradient(145deg,var(--navy3),var(--navy2));
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:52px 48px;
+  max-width:520px;width:100%;
+  text-align:center;
+  box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 80px rgba(201,149,42,.1);
+  animation:gateIn .55s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes gateIn{
+  from{transform:scale(.85) translateY(30px);opacity:0;}
+  to  {transform:scale(1)   translateY(0);   opacity:1;}
+}
+.gate-card::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:60%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.gate-logo-em{font-size:52px;display:block;margin-bottom:20px;}
+.gate-brand{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,5vw,42px);font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--gold3),var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
+}
+.gate-tagline{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:17px;
+  color:var(--text-muted);margin-bottom:32px;line-height:1.5;
+}
+.gate-prompt{
+  font-size:13px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--gold2);margin-bottom:20px;
+}
+
+/* Age button grid */
+.age-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:8px;margin-bottom:28px;
+}
+@media(max-width:480px){
+  .age-grid{grid-template-columns:repeat(5,1fr);gap:6px;}
+  .gate-card{padding:36px 24px;}
+}
+.age-btn{
+  aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-weight:700;
+  border:1px solid var(--border2);border-radius:10px;
+  background:rgba(255,255,255,.04);color:var(--text-muted);
+  cursor:pointer;transition:all .2s;user-select:none;
+}
+.age-btn:hover{
+  background:rgba(201,149,42,.12);border-color:var(--border);color:var(--gold2);
+  transform:translateY(-2px);
+}
+.age-btn.selected{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-color:var(--gold2);color:var(--navy);
+  box-shadow:0 4px 20px rgba(201,149,42,.5);
+  transform:translateY(-3px) scale(1.08);
+}
+
+/* Tier preview badge */
+.tier-preview{
+  min-height:48px;margin-bottom:22px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:rgba(201,149,42,.07);
+  border:1px solid var(--border2);border-radius:10px;
+  padding:10px 16px;
+  font-size:13px;font-weight:500;color:var(--text-muted);
+  transition:all .3s;
+}
+.tier-preview.visible{
+  background:rgba(201,149,42,.12);border-color:var(--border);color:var(--cream);
+}
+.tier-icon{font-size:20px;}
+.tier-text strong{color:var(--gold2);}
+
+/* Go button */
+.gate-go{
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-weight:700;letter-spacing:.5px;
+  padding:15px 52px;border:none;border-radius:99px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);cursor:pointer;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 8px 32px rgba(201,149,42,.35);
+  position:relative;overflow:hidden;
+}
+.gate-go::before{
+  content:'';position:absolute;inset:0;border-radius:99px;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),transparent);
+}
+.gate-go:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 14px 40px rgba(201,149,42,.55);}
+.gate-go:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+
+/* ══════════════════════════════════════════
+   MAIN APP  (hidden until age chosen)
+══════════════════════════════════════════ */
+#app{display:none;}
+#app.visible{display:block;}
+
+.page-wrap{
+  position:relative;z-index:1;
+  max-width:1200px;margin:0 auto;
+  padding:0 24px 80px;
+}
+header{
+  text-align:center;padding:44px 0 32px;
+  border-bottom:1px solid var(--border2);margin-bottom:40px;
+  position:relative;
+}
+.brand-eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.brand-eyebrow::before,.brand-eyebrow::after{
+  content:'';display:block;width:40px;height:1px;background:var(--border);
+}
+.brand-name{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(32px,6vw,62px);font-weight:900;letter-spacing:-1px;line-height:1;
+  margin-bottom:10px;
+  background:linear-gradient(135deg,var(--gold3) 0%,var(--gold) 40%,var(--gold2) 70%,var(--gold3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.brand-tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(15px,2.2vw,20px);color:var(--text-muted);
+  letter-spacing:.4px;margin-bottom:6px;
+}
+.brand-sub{font-size:11px;font-weight:400;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+
+/* Player badge row */
+.player-row{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:18px;flex-wrap:wrap;
+}
+.player-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,149,42,.1);border:1px solid var(--border);
+  border-radius:99px;padding:6px 18px;
+  font-size:12px;font-weight:600;letter-spacing:1px;
+  text-transform:uppercase;color:var(--gold2);
+}
+.player-badge .tier-pill{
+  background:var(--gold);color:var(--navy);
+  border-radius:99px;padding:2px 10px;font-size:10px;font-weight:800;
+}
+.change-age{
+  font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-muted);background:none;border:1px solid var(--border2);
+  border-radius:99px;padding:5px 14px;cursor:pointer;transition:all .2s;
+}
+.change-age:hover{color:var(--gold2);border-color:var(--border);}
+
+/* ── LAYOUT ── */
+.main{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start;}
+@media(max-width:900px){.main{grid-template-columns:1fr;} .sidebar{order:-1;}}
+
+/* ══════════════════════════════════════════
+   WHEEL
+══════════════════════════════════════════ */
+.wheel-section{display:flex;flex-direction:column;align-items:center;gap:24px;}
+.spin-counter{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);}
+.spin-pips{display:flex;gap:6px;}
+.pip{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--border);transition:all .4s;}
+.pip.filled{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(201,149,42,.5);}
+.round-badge{background:rgba(201,149,42,.12);border:1px solid var(--border);border-radius:99px;padding:4px 14px;font-size:11px;color:var(--gold2);font-weight:700;letter-spacing:1px;}
+
+.wheel-outer{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.wheel-outer::before{
+  content:'';position:absolute;inset:-14px;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(201,149,42,.5) 0%,rgba(201,149,42,.1) 25%,rgba(201,149,42,.5) 50%,rgba(201,149,42,.1) 75%,rgba(201,149,42,.5) 100%);
+  animation:ringRot 20s linear infinite;
+}
+@keyframes ringRot{to{transform:rotate(360deg);}}
+.wheel-outer::after{content:'';position:absolute;inset:-8px;border-radius:50%;background:var(--navy);}
+canvas#wheel{border-radius:50%;position:relative;z-index:1;filter:drop-shadow(0 0 32px rgba(201,149,42,.22));cursor:pointer;touch-action:none;display:block;}
+
+.needle-wrap{position:absolute;top:-18px;left:50%;transform:translateX(-50%);z-index:10;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));}
+.needle{width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:44px solid var(--gold2);position:relative;}
+.needle::after{content:'';position:absolute;top:-52px;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--gold2);border:3px solid var(--navy);box-shadow:0 0 12px rgba(201,149,42,.6);}
+
+.spin-btn{
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:700;letter-spacing:.5px;
+  padding:15px 54px;border:none;border-radius:99px;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  color:var(--navy);cursor:pointer;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 8px 32px rgba(201,149,42,.35),0 2px 0 rgba(255,255,255,.15) inset;
+  position:relative;overflow:hidden;
+}
+.spin-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent);border-radius:99px;}
+.spin-btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 14px 42px rgba(201,149,42,.55);}
+.spin-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.spin-btn span{position:relative;z-index:1;}
+
+/* Result card */
+.result-card{
+  background:linear-gradient(135deg,var(--navy3) 0%,var(--navy2) 100%);
+  border:1px solid var(--border);border-radius:16px;padding:26px 30px;
+  text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.4),0 0 0 1px rgba(201,149,42,.08);
+  min-height:115px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:9px;width:100%;
+}
+.result-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(201,149,42,.07),transparent);pointer-events:none;}
+.result-label{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.8;}
+.result-topic{font-family:'Playfair Display',serif;font-size:clamp(17px,3vw,25px);font-weight:700;line-height:1.25;color:var(--cream);transition:all .4s;}
+.result-topic.pop{animation:topicPop .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes topicPop{from{transform:scale(.8) translateY(10px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.result-tip{font-size:12px;color:var(--text-muted);font-style:italic;border-top:1px solid var(--border2);padding-top:10px;margin-top:4px;width:100%;}
+.result-placeholder{color:var(--text-muted);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;}
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+.sidebar{display:flex;flex-direction:column;gap:22px;}
+.panel{background:var(--navy2);border:1px solid var(--border2);border-radius:var(--r);padding:20px 18px;position:relative;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.panel-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.panel-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.stat-box{background:rgba(201,149,42,.07);border:1px solid var(--border2);border-radius:8px;padding:11px;text-align:center;}
+.stat-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--gold2);display:block;line-height:1;}
+.stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+
+.topic-queue{display:flex;flex-direction:column;gap:3px;max-height:340px;overflow-y:auto;}
+.topic-queue::-webkit-scrollbar{width:4px;}
+.topic-queue::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+.tq-item{display:flex;align-items:flex-start;gap:9px;padding:7px 9px;border-radius:7px;font-size:12px;font-weight:400;color:var(--text-muted);border:1px solid transparent;transition:all .2s;}
+.tq-item.used{text-decoration:line-through;opacity:.38;}
+.tq-item.current{background:rgba(201,149,42,.1);border-color:rgba(201,149,42,.3);color:var(--cream);font-weight:600;}
+.tq-item.upcoming{color:var(--text);}
+.tq-num{font-size:9px;font-weight:700;color:var(--gold);opacity:.7;min-width:18px;margin-top:2px;}
+
+.tip-list{display:flex;flex-direction:column;gap:9px;}
+.tip-item{display:flex;gap:11px;align-items:flex-start;font-size:12px;color:var(--text-muted);line-height:1.5;}
+.tip-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.tip-item strong{color:var(--text);}
+
+.about-text{font-size:12px;color:var(--text-muted);line-height:1.75;}
+.about-text strong{color:var(--gold2);}
+.about-text em{color:var(--cream);font-style:normal;font-weight:600;}
+
+.reset-btn{width:100%;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:9px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;margin-top:12px;}
+.reset-btn:hover{background:rgba(201,149,42,.08);color:var(--gold2);border-color:var(--border);}
+
+/* Confetti */
+.cw{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.cp{position:absolute;top:-14px;animation:cFall linear forwards;}
+@keyframes cFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(108vh) rotate(600deg);opacity:0;}}
+
+/* Toast */
+#toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--navy3);border:1px solid var(--border);border-radius:99px;padding:11px 28px;font-size:13px;font-weight:600;color:var(--cream);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:99999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.gold{border-color:var(--gold);color:var(--gold2);}
+
+@media(max-width:560px){header{padding:28px 0 20px;}.brand-name{font-size:34px;}}
+
+/* ══════════════════════════════════════════
+   SPEAKING GUIDE CARD
+══════════════════════════════════════════ */
+.guide-card {
+  width:100%;
+  background:linear-gradient(145deg,var(--navy3),var(--navy2));
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,.35),0 0 0 1px rgba(201,149,42,.08);
+}
+.guide-card-hidden { display:none; }
+
+.guide-header {
+  display:flex;align-items:flex-start;gap:14px;
+  padding:20px 22px 16px;
+  border-bottom:1px solid var(--border2);
+  background:rgba(201,149,42,.05);
+}
+.guide-icon { font-size:28px;flex-shrink:0;line-height:1;margin-top:2px; }
+.guide-title {
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-weight:700;color:var(--gold2);margin-bottom:5px;
+}
+.guide-mandate {
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(224,92,58,.15);
+  border:1px solid rgba(224,92,58,.35);
+  border-radius:99px;padding:3px 12px;
+  font-size:11px;font-weight:600;color:#f0a080;letter-spacing:.3px;
+}
+.guide-mandate strong{color:var(--accent2);}
+
+.guide-placeholder {
+  padding:28px 22px;
+  text-align:center;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:17px;color:var(--text-muted);
+}
+
+.guide-body { padding:18px 22px 20px; }
+
+.guide-steps { display:flex;flex-direction:column;gap:12px;margin-bottom:16px; }
+
+.guide-step {
+  display:flex;gap:13px;align-items:flex-start;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border2);
+  border-radius:10px;padding:12px 14px;
+  animation:stepIn .4s cubic-bezier(.34,1.3,.64,1) both;
+}
+@keyframes stepIn {
+  from{transform:translateX(-12px);opacity:0;}
+  to  {transform:translateX(0);opacity:1;}
+}
+.guide-step:nth-child(1){animation-delay:.05s;}
+.guide-step:nth-child(2){animation-delay:.15s;}
+.guide-step:nth-child(3){animation-delay:.25s;}
+.guide-step:nth-child(4){animation-delay:.35s;}
+
+.step-num {
+  width:24px;height:24px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);font-family:'Playfair Display',serif;
+  font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.step-label {
+  font-size:10px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--gold);margin-bottom:3px;
+}
+.step-text { font-size:13px;color:var(--text);line-height:1.55;font-weight:400; }
+.step-text em { color:var(--gold3);font-style:normal;font-weight:600; }
+
+.guide-footer {
+  display:flex;align-items:flex-start;gap:10px;
+  background:rgba(16,185,129,.07);
+  border:1px solid rgba(16,185,129,.2);
+  border-radius:10px;padding:11px 14px;
+  font-size:12px;color:#6ee7b7;line-height:1.55;
+}
+.guide-footer-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     AGE GATE
+══════════════════════════════════════ -->
+<div id="age-gate">
+  <div class="gate-card">
+    <span class="gate-logo-em">🎙️</span>
+    <div class="gate-brand">Oratora Diplomats</div>
+    <div class="gate-tagline">Eloquence Academy — Where young voices find their power</div>
+
+    <div class="gate-prompt">How old are you today?</div>
+
+    <div class="age-grid" id="age-grid">
+      <!-- filled by JS: ages 7–20 -->
+    </div>
+
+    <div class="tier-preview" id="tier-preview">
+      <span>Select your age to see your topic level →</span>
+    </div>
+
+    <button class="gate-go" id="gate-go" disabled onclick="launchApp()">
+      🚀 &nbsp;Let's Spin!
+    </button>
+  </div>
+</div>
+
+<!-- Confetti + Toast -->
+<div class="cw" id="cw"></div>
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════ -->
+<div id="app">
+<div class="page-wrap">
+
+  <header>
+    <div class="brand-eyebrow">Oratora Diplomats</div>
+    <div class="brand-name">Eloquence Academy</div>
+    <div class="brand-tagline">"The difference between the right word and the almost-right word is the difference between lightning and a lightning bug."</div>
+    <div class="brand-sub">Public Speaking &amp; English Communication Excellence</div>
+    <div class="player-row">
+      <div class="player-badge" id="player-badge">
+        🎓 Speaker &nbsp;<span class="tier-pill" id="tier-pill">Level</span>
+      </div>
+      <button class="change-age" onclick="changeAge()">✎ Change Age</button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- WHEEL -->
+    <div class="wheel-section">
+      <div class="spin-counter">
+        <div class="spin-pips" id="pips"></div>
+        <span id="round-badge" class="round-badge">Round 1</span>
+      </div>
+      <div class="wheel-outer">
+        <div class="needle-wrap"><div class="needle"></div></div>
+        <canvas id="wheel" width="480" height="480"></canvas>
+      </div>
+      <button class="spin-btn" id="spin-btn" onclick="spinWheel()">
+        <span>🎲 Spin the Wheel</span>
+      </button>
+      <div class="result-card">
+        <div class="result-label">Your Topic</div>
+        <div class="result-topic" id="result-topic">
+          <span class="result-placeholder">Spin to discover your topic…</span>
+        </div>
+        <div class="result-tip" id="result-tip" style="display:none"></div>
+      </div>
+
+      <!-- SPEAKING GUIDE CARD -->
+      <div class="guide-card" id="guide-card">
+        <div class="guide-header">
+          <span class="guide-icon">💬</span>
+          <div>
+            <div class="guide-title">How to Speak on This Topic</div>
+            <div class="guide-mandate">⚠️ Minimum <strong>3 sentences</strong> are mandatory</div>
+          </div>
+        </div>
+        <div class="guide-placeholder" id="guide-placeholder">
+          <span>Spin the wheel to get your speaking guide!</span>
+        </div>
+        <div class="guide-body" id="guide-body" style="display:none">
+          <div class="guide-steps" id="guide-steps"></div>
+          <div class="guide-footer">
+            <span class="guide-footer-icon">🎯</span>
+            <span id="guide-footer-text"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="panel">
+        <div class="panel-title">📊 Session Stats</div>
+        <div class="stats-grid">
+          <div class="stat-box"><span class="stat-num" id="st-spins">0</span><div class="stat-lbl">Total Spins</div></div>
+          <div class="stat-box"><span class="stat-num" id="st-round">1</span><div class="stat-lbl">Round</div></div>
+          <div class="stat-box"><span class="stat-num" id="st-used">0</span><div class="stat-lbl">Topics Used</div></div>
+          <div class="stat-box"><span class="stat-num" id="st-left">—</span><div class="stat-lbl">Remaining</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">📋 Current Round Topics</div>
+        <div class="topic-queue" id="topic-queue"></div>
+        <button class="reset-btn" onclick="resetAll()">↺ Reset Everything</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🏛️ Speak Like a Statesman</div>
+        <div class="tip-list" id="tips-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🌟 About Eloquence Academy</div>
+        <div class="about-text">
+          We train young minds to think on their feet, command a room, and wield language with the precision and passion of the world's great orators.<br><br>
+          Our <strong>Oratora Diplomats curriculum</strong> builds <em>critical thinking</em>, <em>structured argumentation</em>, and <em>linguistic confidence</em> that turns ideas into impact.<br><br>
+          Every spin is a chance to <strong>discover your voice.</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════════
+   TIER DEFINITIONS
+══════════════════════════════════════════════════════════ */
+const TIERS = {
+  junior: {
+    label: 'Junior Orator',
+    range: '7 – 11',
+    emoji: '⭐',
+    desc:  'Fun, familiar, and imaginative topics perfect for building first-time confidence.',
+    color: '#2a9d6e',
+  },
+  rising: {
+    label: 'Rising Speaker',
+    range: '12 – 15',
+    emoji: '🔥',
+    desc:  'Thought-provoking topics that challenge opinions and spark debate.',
+    color: '#c9952a',
+  },
+  advanced: {
+    label: 'Advanced Eloquent',
+    range: '16 – 20',
+    emoji: '💫',
+    desc:  'Nuanced, world-affairs and philosophical topics for confident speakers.',
+    color: '#a855f7',
+  },
+};
+
+function getTier(age) {
+  if (age <= 11) return 'junior';
+  if (age <= 15) return 'rising';
+  return 'advanced';
+}
+
+/* ══════════════════════════════════════════════════════════
+   TOPIC BANKS  — 5 pools × 12 topics per tier  (60 topics each)
+══════════════════════════════════════════════════════════ */
+const TOPIC_BANKS = {
+
+  /* ── JUNIOR  (7–11) ─────────────────────────────────── */
+  junior: [
+    // Pool 1 — My World
+    ["If I could only eat three foods forever",
+     "Why every family should have a pet",
+     "The worst chore at home and why",
+     "Why I deserve more pocket money",
+     "The best surprise I have ever had",
+     "Three surprising facts about me",
+     "My absolute favourite day of the year",
+     "What you would find in my backpack",
+     "Why my best friend is amazing",
+     "If I had a magic wand for one day",
+     "My favourite cartoon character and what I learn from them",
+     "The funniest thing that ever happened to me"],
+    // Pool 2 — Imagine & Explore
+    ["If I could fly anywhere, I would go to…",
+     "If I could talk to animals, I would ask…",
+     "If I found a treasure chest, I would…",
+     "My perfect dream school would look like…",
+     "If I could invent one toy, it would be…",
+     "The superpower I would choose and why",
+     "If I were the size of an ant for a day",
+     "If I could be any animal for a week",
+     "My ideal birthday party would have…",
+     "The imaginary land I would create",
+     "If food could talk, what would pizza say?",
+     "What I would do if school was cancelled forever"],
+    // Pool 3 — Seasons & Nature
+    ["The best thing about summer holidays",
+     "Why rainy days are secretly amazing",
+     "My favourite season and three reasons why",
+     "The most fascinating insect in the world",
+     "Why we should plant more trees",
+     "My favourite outdoor game and how to play it",
+     "What I love most about the beach",
+     "If I could be a weather forecaster",
+     "The coolest thing about outer space",
+     "Why butterflies are nature's superheroes",
+     "My favourite animal and what makes it special",
+     "What I would grow in my own garden"],
+    // Pool 4 — Fun Opinions
+    ["The best cartoon show ever made",
+     "Why recess should be longer at school",
+     "My most treasured possession and why",
+     "The greatest sport in the world",
+     "Why music makes everything better",
+     "The food I could eat every single day",
+     "Why drawing and art are important",
+     "The best book I have ever read",
+     "Why laughter is the best medicine",
+     "My favourite festival and what makes it special",
+     "The most useful invention ever created",
+     "Why kindness is a superpower"],
+    // Pool 5 — Dreams & Goals
+    ["What I want to be when I grow up",
+     "The place in the world I most want to visit",
+     "One thing I am really good at",
+     "Something new I want to learn this year",
+     "The person in my life I admire most",
+     "If I could meet any famous person",
+     "The change I would make to my neighbourhood",
+     "My idea of a perfect weekend",
+     "Why trying new things is important",
+     "A skill I think everyone should have",
+     "What makes a really good friend",
+     "The three rules I would make if I were principal"],
+  ],
+
+  /* ── RISING  (12–15) ───────────────────────────────── */
+  rising: [
+    // Pool 1 — Identity & Society
+    ["Why social media does more harm than good",
+     "Should school uniforms be compulsory?",
+     "Why every teenager should learn a second language",
+     "The biggest pressure teenagers face today",
+     "Is competition healthy or harmful?",
+     "Why mental health should be taught in schools",
+     "The most important quality a leader must have",
+     "Should mobile phones be banned in classrooms?",
+     "Why reading is still relevant in the digital age",
+     "The difference between confidence and arrogance",
+     "Is homework actually useful?",
+     "Why volunteering should be compulsory in school"],
+    // Pool 2 — World & Change
+    ["One global problem I want to help solve",
+     "Why climate change is everyone's responsibility",
+     "Should voting age be lowered to 16?",
+     "The most important invention of the last century",
+     "Why sport teaches us life skills",
+     "Is artificial intelligence a friend or foe?",
+     "Why every country needs strong public libraries",
+     "Should zoos exist in the modern world?",
+     "The role of young people in democracy",
+     "Why space exploration matters for our generation",
+     "Is fast fashion destroying our planet?",
+     "What would I do with one million dollars for good?"],
+    // Pool 3 — Creativity & Culture
+    ["The film that changed the way I think",
+     "Why learning history prevents repeating mistakes",
+     "The artist or musician who inspires me most",
+     "Is graffiti art or vandalism?",
+     "Why storytelling is the world's oldest technology",
+     "The value of learning a musical instrument",
+     "Should video games be considered a sport?",
+     "Why theatre and drama build life skills",
+     "The language I most wish I could speak fluently",
+     "What makes a truly great speech?",
+     "Why cultural exchange makes societies stronger",
+     "The book every teenager should read"],
+    // Pool 4 — Reasoning & Debate
+    ["Should exams be replaced by projects?",
+     "Is it ever acceptable to break the rules?",
+     "Why critical thinking is more important than memorising facts",
+     "Should celebrities be considered role models?",
+     "The argument for and against social media age limits",
+     "Why empathy is the skill of the future",
+     "Is money the root of all evil?",
+     "Should animals have legal rights?",
+     "Why failure is the best teacher",
+     "Is technology making us lazier?",
+     "Should junk food be taxed more heavily?",
+     "The case for four-day school weeks"],
+    // Pool 5 — Personal Power
+    ["The habit that has changed my life",
+     "What courage really means to a teenager",
+     "Why the people you surround yourself with matter",
+     "The life lesson I learned the hard way",
+     "Why I believe in myself",
+     "How I deal with failure and setbacks",
+     "The advice I would give my younger self",
+     "What I would say to a world of adults",
+     "Why your words have more power than you think",
+     "The ambition I am most afraid to say out loud",
+     "What makes a life well-lived?",
+     "The change I am committed to making in my own life"],
+  ],
+
+  /* ── ADVANCED  (16–20) ─────────────────────────────── */
+  advanced: [
+    // Pool 1 — Philosophy & Ideas
+    ["Is absolute truth possible in a subjective world?",
+     "What do we owe to future generations?",
+     "Can democracy survive in the age of misinformation?",
+     "Is morality relative or universal?",
+     "The tension between individual freedom and collective responsibility",
+     "Has social media democratised or destabilised public discourse?",
+     "Is civil disobedience ever morally justified?",
+     "The ethics of artificial intelligence in decision-making",
+     "What makes a society truly just?",
+     "Is nationalism a force for unity or division?",
+     "Are humans fundamentally cooperative or competitive?",
+     "The most dangerous idea in the world today"],
+    // Pool 2 — Global Affairs & Policy
+    ["The single policy change that would improve your country most",
+     "How should nations balance economic growth and environmental protection?",
+     "Is globalisation making the world more equal or less?",
+     "The responsibility of wealthy nations toward developing ones",
+     "Should the United Nations be reformed — and how?",
+     "The geopolitical consequence of climate inaction",
+     "Digital privacy versus national security — where is the line?",
+     "How should governments regulate artificial intelligence?",
+     "Is universal basic income a solution or a utopia?",
+     "The case for or against open borders",
+     "Who bears the moral debt of colonialism?",
+     "Multilateralism versus unilateralism in the 21st century"],
+    // Pool 3 — Language, Power & Identity
+    ["How language shapes our perception of reality",
+     "The political power of silence and oratory",
+     "Why mother-tongue education matters in a globalised world",
+     "The role of satire in speaking truth to power",
+     "Is English linguistic imperialism or a global gift?",
+     "How rhetoric can both liberate and manipulate",
+     "The responsibility of the media in a democracy",
+     "Why great literature is an act of political courage",
+     "The erasure of indigenous languages — a cultural crisis",
+     "How narrative controls the way we see conflict",
+     "The relationship between vocabulary and power",
+     "Why the most important speeches in history changed the world"],
+    // Pool 4 — Science, Technology & Ethics
+    ["The ethical limits of genetic engineering",
+     "Should billionaires fund space exploration instead of governments?",
+     "Is technology the solution to or the cause of inequality?",
+     "The case for or against nuclear energy",
+     "Should we pursue immortality through science?",
+     "The societal risk of deep fake technology",
+     "Automation — salvation for humanity or a catastrophe for labour?",
+     "Algorithmic bias and the illusion of objective machines",
+     "Is big data surveillance a necessary trade-off for security?",
+     "The ethics of human enhancement through technology",
+     "What happens when machines become more creative than humans?",
+     "Who should own the intellectual property created by AI?"],
+    // Pool 5 — Conviction & Vision
+    ["The world I intend to build — my personal manifesto",
+     "The single greatest threat to human civilisation right now",
+     "Why young people are not the leaders of tomorrow but today",
+     "What the world gets profoundly wrong about education",
+     "The argument that nobody in this room wants to hear",
+     "Why intellectual humility is the rarest form of intelligence",
+     "The speech I would give to the United Nations",
+     "What history will say about this generation",
+     "The three values I will never compromise on",
+     "Why diversity of thought is more important than diversity of identity",
+     "The hardest truth I have had to accept about the world",
+     "If I had five minutes with every world leader"],
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   SPEAKING TIPS — per tier
+══════════════════════════════════════════════════════════ */
+const TIPS = {
+  junior: [
+    {icon:'🎭', text:'Start with a <strong>big question</strong> — it makes everyone lean in.'},
+    {icon:'👀', text:'Look at your audience! Pick one friendly face and speak to them.'},
+    {icon:'🗣️', text:'Speak slowly and clearly — your words are worth hearing.'},
+    {icon:'✋', text:'Use your hands to help tell the story — gestures bring words to life.'},
+    {icon:'😄', text:'Smile! Confidence is contagious, even when you feel nervous.'},
+    {icon:'🔁', text:'End by linking back to how you started — it feels complete and clever.'},
+  ],
+  rising: [
+    {icon:'🎯', text:'Open with a <strong>provocative claim</strong> — make them react immediately.'},
+    {icon:'📐', text:'Use the <strong>PEEL structure</strong>: Point → Evidence → Explain → Link.'},
+    {icon:'⏸️', text:'Pause before your key point. Silence signals importance.'},
+    {icon:'📚', text:'One precise, unexpected word elevates an entire argument.'},
+    {icon:'🔄', text:'Address the counter-argument — it shows intellectual maturity.'},
+    {icon:'⚡', text:'Vary sentence length. Short. Then something longer and more flowing for contrast.'},
+  ],
+  advanced: [
+    {icon:'🏛️', text:'Tricolon — three parallel phrases — gives your argument rhythm and gravity.'},
+    {icon:'🗡️', text:'Steel-man the opposition before dismantling it — it destroys their credibility.'},
+    {icon:'🌊', text:'Build to a crescendo: start measured, rise in intensity, peak at your thesis.'},
+    {icon:'🔬', text:'Specificity wins. Replace "many people" with a precise statistic or name.'},
+    {icon:'🎭', text:'Ethos, Pathos, Logos — deploy all three. Logic convinces; emotion converts.'},
+    {icon:'✍️', text:'Your <strong>last sentence</strong> is what they remember. Craft it first, before everything else.'},
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   WHEEL COLOURS
+══════════════════════════════════════════════════════════ */
+const SEG_COLORS = [
+  ['#1a2f5e','#c9952a'],['#0f1d35','#e8b84b'],
+  ['#162447','#c9952a'],['#0b1f44','#f5d98e'],
+  ['#1a2f5e','#e8b84b'],['#12233f','#c9952a'],
+  ['#162447','#f5d98e'],['#0f1d35','#e8b84b'],
+];
+
+/* ══════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════ */
+let playerAge  = null;
+let playerTier = null;
+
+let state = {
+  currentPool:   [],
+  poolIndex:     0,
+  spinInRound:   0,
+  totalSpins:    0,
+  totalUsed:     0,
+  usedThisRound: [],
+  spinning:      false,
+  currentTopic:  '',
+  roundNum:      1,
+};
+const WHEEL_SEGS = 8;
+let wheelTopics = [];
+let wheelAngle  = 0;
+let animId      = null;
+
+/* ══════════════════════════════════════════════════════════
+   UTILITY
+══════════════════════════════════════════════════════════ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickPool() {
+  const pools = TOPIC_BANKS[playerTier];
+  state.poolIndex = state.poolIndex % pools.length;
+  state.currentPool = shuffle(pools[state.poolIndex]);
+  state.poolIndex++;
+  state.usedThisRound = [];
+}
+
+function getWheelTopics() {
+  const available = state.currentPool.filter(t => !state.usedThisRound.includes(t));
+  if (available.length < WHEEL_SEGS) { pickPool(); return shuffle(state.currentPool).slice(0, WHEEL_SEGS); }
+  return shuffle(available).slice(0, WHEEL_SEGS);
+}
+
+/* ══════════════════════════════════════════════════════════
+   AGE GATE LOGIC
+══════════════════════════════════════════════════════════ */
+(function buildAgeGrid() {
+  const grid = document.getElementById('age-grid');
+  for (let a = 7; a <= 20; a++) {
+    const btn = document.createElement('button');
+    btn.className   = 'age-btn';
+    btn.textContent = a;
+    btn.dataset.age = a;
+    btn.onclick = () => selectAge(a);
+    grid.appendChild(btn);
+  }
+})();
+
+function selectAge(age) {
+  playerAge  = age;
+  playerTier = getTier(age);
+  const tier = TIERS[playerTier];
+
+  // Update button selection
+  document.querySelectorAll('.age-btn').forEach(b => {
+    b.classList.toggle('selected', +b.dataset.age === age);
+  });
+
+  // Show tier preview
+  const preview = document.getElementById('tier-preview');
+  preview.classList.add('visible');
+  preview.innerHTML =
+    `<span class="tier-icon">${tier.emoji}</span>` +
+    `<span class="tier-text"><strong>${tier.label}</strong> (Ages ${tier.range}) — ${tier.desc}</span>`;
+
+  document.getElementById('gate-go').disabled = false;
+}
+
+function launchApp() {
+  if (!playerAge) return;
+  document.getElementById('age-gate').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  initGame();
+}
+
+function changeAge() {
+  // Reset and show age gate again
+  if (animId) cancelAnimationFrame(animId);
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('age-gate').classList.remove('hidden');
+  // Clear selected state
+  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('tier-preview').classList.remove('visible');
+  document.getElementById('tier-preview').innerHTML = '<span>Select your age to see your topic level →</span>';
+  document.getElementById('gate-go').disabled = true;
+  playerAge = null; playerTier = null;
+}
+
+/* ══════════════════════════════════════════════════════════
+   GAME INIT
+══════════════════════════════════════════════════════════ */
+function initGame() {
+  const tier = TIERS[playerTier];
+  // Header badge
+  document.getElementById('player-badge').innerHTML =
+    `🎓 Age ${playerAge} &nbsp;<span class="tier-pill" style="background:${tier.color}">${tier.label}</span>`;
+
+  // Tips panel
+  const tipsList = document.getElementById('tips-list');
+  tipsList.innerHTML = '';
+  TIPS[playerTier].forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'tip-item';
+    d.innerHTML = `<span class="tip-icon">${t.icon}</span><span>${t.text}</span>`;
+    tipsList.appendChild(d);
+  });
+
+  // Reset game state
+  state = { currentPool:[], poolIndex:0, spinInRound:0, totalSpins:0, totalUsed:0, usedThisRound:[], spinning:false, currentTopic:'', roundNum:1 };
+  wheelAngle = 0;
+  pickPool();
+  wheelTopics = getWheelTopics();
+  resizeWheel();
+  updatePips();
+  updateStats();
+  updateQueue();
+}
+
+function resetAll() {
+  if (animId) cancelAnimationFrame(animId);
+  state = { currentPool:[], poolIndex:0, spinInRound:0, totalSpins:0, totalUsed:0, usedThisRound:[], spinning:false, currentTopic:'', roundNum:1 };
+  wheelAngle = 0;
+  pickPool();
+  wheelTopics = getWheelTopics();
+  drawWheel(wheelAngle);
+  updatePips();
+  updateStats();
+  updateQueue();
+  const rt = document.getElementById('result-topic');
+  rt.innerHTML = '<span class="result-placeholder">Spin to discover your topic…</span>';
+  document.getElementById('result-tip').style.display = 'none';
+  document.getElementById('guide-placeholder').style.display = 'block';
+  document.getElementById('guide-body').style.display = 'none';
+  showToast('↺ Reset — fresh round starting!', 'gold');
+}
+
+/* ══════════════════════════════════════════════════════════
+   CANVAS WHEEL
+══════════════════════════════════════════════════════════ */
+const canvas = document.getElementById('wheel');
+const ctx    = canvas.getContext('2d');
+
+function drawWheel(angle) {
+  const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, R=cx-6;
+  const n=wheelTopics.length, arc=(2*Math.PI)/n;
+  ctx.clearRect(0,0,W,H);
+
+  wheelTopics.forEach((topic,i) => {
+    const start = angle + i*arc - Math.PI/2;
+    const end   = start + arc;
+    const ci    = i % SEG_COLORS.length;
+
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,start,end);ctx.closePath();
+    ctx.fillStyle = SEG_COLORS[ci][0];ctx.fill();
+    ctx.strokeStyle = 'rgba(201,149,42,0.35)';ctx.lineWidth=1.5;ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx,cy);ctx.rotate(start+arc/2);ctx.textAlign='right';
+    const maxW  = R*0.7;
+    const words = topic.split(' ');
+    const lines = [];let line='';
+    ctx.font = '600 11px "DM Sans",sans-serif';
+    words.forEach(w => {
+      const test = line ? line+' '+w : w;
+      if (ctx.measureText(test).width > maxW && line) { lines.push(line);line=w; }
+      else line=test;
+    });
+    if(line) lines.push(line);
+    const lineH=13, startY=-(lines.length-1)*lineH/2;
+    ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=4;
+    lines.forEach((l,li) => {
+      ctx.fillStyle=SEG_COLORS[ci][1];
+      ctx.font='700 11px "DM Sans",sans-serif';
+      ctx.fillText(l, R-12, startY+li*lineH+3);
+    });
+    ctx.restore();
+  });
+
+  // Hub
+  const hg=ctx.createRadialGradient(cx,cy,0,cx,cy,38);
+  hg.addColorStop(0,'#1a2f5e');hg.addColorStop(1,'#0b1426');
+  ctx.beginPath();ctx.arc(cx,cy,38,0,Math.PI*2);
+  ctx.fillStyle=hg;ctx.fill();
+  ctx.strokeStyle='rgba(201,149,42,0.7)';ctx.lineWidth=2;ctx.stroke();
+  ctx.font='21px serif';ctx.textAlign='center';
+  ctx.fillStyle='#e8b84b';ctx.shadowColor='rgba(201,149,42,0.5)';ctx.shadowBlur=8;
+  ctx.fillText('🎙️',cx,cy+7);ctx.shadowBlur=0;
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(201,149,42,0.5)';ctx.lineWidth=3;ctx.stroke();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SPIN
+══════════════════════════════════════════════════════════ */
+function spinWheel() {
+  if (state.spinning) return;
+
+  // Advance round BEFORE locking topics so the fresh pool is used
+  if (state.spinInRound >= 3) {
+    state.spinInRound = 0;
+    state.roundNum++;
+    pickPool();
+    updatePips();
+    showToast(`🌟 Round ${state.roundNum} — fresh topics!`, 'gold');
+  }
+
+  state.spinning = true;
+  document.getElementById('spin-btn').disabled = true;
+  document.getElementById('result-tip').style.display = 'none';
+
+  // ── SINGLE lock: get topics once, draw once, never replace until next spin ──
+  wheelTopics = getWheelTopics();
+
+  const n   = wheelTopics.length;
+  const arc = (2 * Math.PI) / n;
+
+  // Pre-decide exactly which segment wins before animation starts.
+  // Segment i is drawn starting at angle: (wheelAngle + i*arc - π/2)
+  // The needle is fixed at the canvas top = angle -π/2.
+  // For the needle to point at the CENTRE of segment targetIdx when stopped:
+  //   wheelFinal + targetIdx*arc - π/2 + arc/2  ≡  -π/2   (mod 2π)
+  //   wheelFinal  =  -(targetIdx + 0.5) * arc   (mod 2π)
+  const targetIdx   = Math.floor(Math.random() * n);
+  const targetAngle = -(targetIdx + 0.5) * arc;
+
+  // Always spin FORWARD at least 6 full rotations
+  const fullSpins = (6 + Math.floor(Math.random() * 5)) * Math.PI * 2;
+  const curMod    = ((wheelAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const tgtMod    = ((targetAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  let   delta     = (tgtMod - curMod + Math.PI * 2) % (Math.PI * 2);
+  if (delta < 0.01) delta += Math.PI * 2;
+  const totalRotation = fullSpins + delta;
+  const finalAngle    = wheelAngle + totalRotation; // absolute, no drift
+
+  // Draw initial state
+  drawWheel(wheelAngle);
+
+  const duration = 4200 + Math.random() * 1000;
+  const t0       = performance.now();
+  const t_start  = wheelAngle;
+
+  function ease(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function frame(now) {
+    const p = Math.min((now - t0) / duration, 1);
+    wheelAngle = t_start + totalRotation * ease(p);
+    drawWheel(wheelAngle);
+    if (p < 1) {
+      animId = requestAnimationFrame(frame);
+    } else {
+      wheelAngle = finalAngle; // snap to exact pre-calculated angle
+      drawWheel(wheelAngle);
+      onSpinEnd(targetIdx);   // winner decided before spin — arrow and text always agree
+    }
+  }
+  animId = requestAnimationFrame(frame);
+}
+
+function onSpinEnd(idx) {
+  // idx was decided before the animation — it's the segment the needle points to.
+  const topic = wheelTopics[idx];
+
+  state.currentTopic=topic;
+  state.totalSpins++;state.spinInRound++;state.totalUsed++;
+  if(!state.usedThisRound.includes(topic)) state.usedThisRound.push(topic);
+
+  showResult(topic);
+  updateStats();updatePips();updateQueue();
+  spawnConfetti();
+  state.spinning=false;
+  document.getElementById('spin-btn').disabled=false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   UI
+══════════════════════════════════════════════════════════ */
+const SPIN_TIPS = [
+  "Open with 'Imagine a world where…' to hook everyone instantly.",
+  "Use the PEEL structure: Point → Evidence → Explain → Link.",
+  "Speak to the back row — project from the diaphragm.",
+  "Pause 3 seconds before your strongest point. Silence signals power.",
+  "A personal story in the opening 20 seconds builds instant connection.",
+  "Gestures should be open, deliberate — hands between chin and waist.",
+  "End with a call to action or a question that echoes in the room.",
+  "Eye contact: one person per sentence, rotate around the room.",
+  "Short sentences punch. Then something longer, flowing, and thoughtful.",
+  "The best speeches feel like conversations, not performances.",
+  "Alliteration used sparingly creates phrases that stick.",
+  "Know your last sentence before you begin. Endings define everything.",
+];
+
+function showResult(topic) {
+  const el=document.getElementById('result-topic');
+  el.innerHTML=topic;
+  el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
+  const tip=document.getElementById('result-tip');
+  tip.textContent='💡 '+SPIN_TIPS[Math.floor(Math.random()*SPIN_TIPS.length)];
+  tip.style.display='block';
+  showGuide(topic, playerTier);
+}
+
+function updatePips() {
+  const wrap=document.getElementById('pips');wrap.innerHTML='';
+  for(let i=0;i<3;i++){
+    const p=document.createElement('div');
+    p.className='pip'+(i<state.spinInRound?' filled':'');
+    wrap.appendChild(p);
+  }
+  document.getElementById('round-badge').textContent=`Round ${state.roundNum}`;
+}
+
+function updateStats() {
+  document.getElementById('st-spins').textContent=state.totalSpins;
+  document.getElementById('st-round').textContent=state.roundNum;
+  document.getElementById('st-used').textContent=state.totalUsed;
+  const rem=state.currentPool.filter(t=>!state.usedThisRound.includes(t)).length;
+  document.getElementById('st-left').textContent=rem;
+}
+
+function updateQueue() {
+  const el=document.getElementById('topic-queue');el.innerHTML='';
+  state.currentPool.forEach((t,i) => {
+    const used=state.usedThisRound.includes(t);
+    const cur =t===state.currentTopic;
+    const div =document.createElement('div');
+    div.className='tq-item'+(used?' used':cur?' current':' upcoming');
+    div.innerHTML=`<span class="tq-num">${String(i+1).padStart(2,'0')}</span><span>${t}</span>`;
+    el.appendChild(div);
+  });
+}
+
+function spawnConfetti() {
+  const wrap=document.getElementById('cw');wrap.innerHTML='';
+  const cols=['#c9952a','#e8b84b','#f5d98e','#e05c3a','#faf7f0','#7c9fcf','#10b981'];
+  for(let i=0;i<72;i++){
+    const p=document.createElement('div');p.className='cp';
+    const w=5+Math.random()*9;const isC=Math.random()>.45;
+    p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${w}px;height:${w}px;border-radius:${isC?'50%':'2px'};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.6}s;`;
+    wrap.appendChild(p);
+  }
+  setTimeout(()=>{ wrap.innerHTML=''; },4500);
+}
+
+let _tt;
+function showToast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='show'+(type?` ${type}`:'');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function resizeWheel(){
+  const maxS=Math.min(window.innerWidth-80,480);
+  const s=Math.max(260,maxS>700?480:maxS);
+  canvas.width=s;canvas.height=s;
+  drawWheel(wheelAngle);
+}
+window.addEventListener('resize',()=>{
+  if(document.getElementById('app').classList.contains('visible')) resizeWheel();
+});
+
+/* ══════════════════════════════════════════════════════════
+   SPEAKING GUIDE DATA — 3-tier, topic-pattern matched
+══════════════════════════════════════════════════════════ */
+
+const GUIDE_TEMPLATES = {
+  junior: {
+    steps: [
+      { label: `Sentence 1 — Start with a BIG feeling`,
+        hint:  `Open with how this topic makes you feel, or ask a fun question to grab attention.` },
+      { label: `Sentence 2 — Share your idea or reason`,
+        hint:  `Tell us ONE thing you think about this topic. Use "I think…" or "I believe…"` },
+      { label: `Sentence 3 — Give an example from your life`,
+        hint:  `Think of a time this happened to you or someone you know. Stories are powerful!` },
+      { label: `Bonus — Wrap it up with confidence`,
+        hint:  `End with "That is why I think…" and repeat your main idea one more time.` },
+    ],
+    footer: `Speak loud enough for the person at the back to hear! Smile, stand tall, and you are already halfway there. 🌟`,
+  },
+  rising: {
+    steps: [
+      { label: `Sentence 1 — Hook your audience`,
+        hint:  `Open with a bold claim, a surprising fact, or a question that makes people think.` },
+      { label: `Sentence 2 — State your position clearly`,
+        hint:  `Use "I strongly believe…" or "The evidence shows…" to make your stand unmistakable.` },
+      { label: `Sentence 3 — Back it up with a reason or example`,
+        hint:  `Give one real-world example, statistic, or personal experience that supports your point.` },
+      { label: `Sentence 4 — Address the other side and conclude`,
+        hint:  `Acknowledge what others might say, then explain why your argument is stronger. End decisively.` },
+    ],
+    footer: `Use the PEEL structure: Point → Evidence → Explain → Link back to your opening. Pause before your strongest sentence — silence commands attention. 🔥`,
+  },
+  advanced: {
+    steps: [
+      { label: `Sentence 1 — Command attention with a thesis`,
+        hint:  `Open with a precise, provocative claim. Avoid vague openers — state your position immediately.` },
+      { label: `Sentence 2 — Deploy evidence with authority`,
+        hint:  `Cite a named thinker, historical event, or specific statistic. Precision signals credibility.` },
+      { label: `Sentence 3 — Steel-man the opposition`,
+        hint:  `Articulate the strongest version of the counter-argument before dismantling it — this shows intellectual depth.` },
+      { label: `Sentence 4 — Deliver your rebuttal and vision`,
+        hint:  `Explain why your argument prevails, then close with a forward-looking statement or call to action that lingers.` },
+    ],
+    footer: `Ethos (credibility) + Pathos (emotion) + Logos (logic). Great speeches need all three. Your final sentence is remembered longest — craft it first. 💫`,
+  },
+};
+
+const TOPIC_STARTERS = {
+  junior: [
+    `Have you ever wondered about`,
+    `I get really excited when I think about`,
+    `One thing that always makes me smile is`,
+    `If you asked me about`,
+    `Let me tell you something amazing about`,
+  ],
+  rising: [
+    `It is time we had an honest conversation about`,
+    `Most people do not realise how important`,
+    `The world would be a very different place if`,
+    `Here is a question that keeps me up at night:`,
+    `When we talk about`,
+  ],
+  advanced: [
+    `The question of`,
+    `At the heart of this debate lies a fundamental tension between`,
+    `History has repeatedly demonstrated that`,
+    `If we are serious about progress, we must confront`,
+    `The philosopher Aristotle argued — and rightly so — that`,
+  ],
+};
+
+function showGuide(topic, tier) {
+  const tmpl     = GUIDE_TEMPLATES[tier];
+  const starters = TOPIC_STARTERS[tier];
+  const starter  = starters[Math.floor(Math.random() * starters.length)];
+
+  const stepsEl  = document.getElementById('guide-steps');
+  const footerEl = document.getElementById('guide-footer-text');
+  const bodyEl   = document.getElementById('guide-body');
+  const phEl     = document.getElementById('guide-placeholder');
+
+  stepsEl.innerHTML = '';
+
+  tmpl.steps.forEach(function(s, i) {
+    const div = document.createElement('div');
+    div.className = 'guide-step';
+    div.style.animationDelay = (i * 0.1) + 's';
+
+    const hintHtml = (i === 0)
+      ? s.hint + '<br><em>Try starting with: "' + starter + ' ' + topic.toLowerCase() + '…"</em>'
+      : s.hint;
+
+    div.innerHTML =
+      '<div class="step-num">' + (i + 1) + '</div>' +
+      '<div>' +
+        '<div class="step-label">' + s.label + '</div>' +
+        '<div class="step-text">' + hintHtml + '</div>' +
+      '</div>';
+    stepsEl.appendChild(div);
+  });
+
+  footerEl.textContent = tmpl.footer;
+  phEl.style.display   = 'none';
+  bodyEl.style.display = 'block';
+}
+
+</script>
+</body>
+</html>
